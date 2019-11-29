@@ -1,0 +1,45 @@
+version: '3.5'
+services:
+  rails_app_setup:
+    build:
+      context: ./rails_app
+      dockerfile: Dockerfile
+    depends_on:
+
+      - mysql
+
+    environment:
+
+      - PASSENGER_APP_ENV=development
+
+    entrypoint: ./setup.sh
+  rails_app:
+    container_name: rails_app
+    build:
+      context: ./rails_app
+      dockerfile: Dockerfile
+    depends_on:
+
+      - mysql
+      - rails_app_setup
+
+    environment:
+
+      - PASSENGER_APP_ENV=development
+
+    ports:
+
+      - "80:80"
+
+    volumes:
+
+      - ./rails_app:/home/app/rails
+
+  mysql:
+    image: mysql:5.7
+    environment:
+
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_USER=rails
+      - MYSQL_PASSWORD=mysecretpassword
+      - MYSQL_DATABASE=rails_app_development
